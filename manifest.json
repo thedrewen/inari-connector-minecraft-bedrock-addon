@@ -30,5 +30,8 @@
             "module_name": "@minecraft/server-net",
             "version": "beta"
         }
-    ]
+    ],
+    "metadata": {
+        "authors": ["TheDreWen"]
+    }
 }
