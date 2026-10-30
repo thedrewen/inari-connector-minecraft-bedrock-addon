@@ -4,6 +4,7 @@
         "name": "InariConnector",
         "description": "A connector for linking Minecraft Bedrock Edition using Inari (server addon).",
         "uuid": "b8dd19f8-478a-49a2-9154-7ee118798693",
+        "min_engine_version": "1.26.20",
         "version": [1, 0, 0]
     },
     "modules": [
