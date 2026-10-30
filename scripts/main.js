@@ -10,11 +10,14 @@ class InariAddons {
     }
     async connect() {
         this.ws = await websocket.connect(variables.get("INARI_WS_URL"));
-        system.runTimeout(() => this.ws.send(JSON.stringify({ kind: 'auth', data: { is_server: true, channel: 'default', auth_key: secrets.get("INARI_API_KEY") }, transaction_uuid: 'auth' })), 20);
+        system.runTimeout(() => {
+            utils.logStaff('§aauthentication...');
+            console.log('authentication...');
+            this.ws.send(JSON.stringify({ kind: 'auth', data: { is_server: true, channel: 'default', auth_key: secrets.get("INARI_API_KEY") }, transaction_uuid: 'auth' }));
+        }, 20 * 3);
         this.ws.afterEvents.message.subscribe((event) => {
             try {
                 const payload = JSON.parse(event.message);
-                console.debug(`INARI DEBUG : ${payload}`);
                 const kind = payload.kind;
                 const data = payload.data;
                 if (kind == 'auth') {
