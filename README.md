@@ -41,7 +41,6 @@ Then configure the values for your server in:
 
 ```text
 config/default/variables.json
-config/default/secrets.json
 config/default/permissions.json
 ```
 
@@ -49,20 +48,17 @@ Example `variables.json`:
 
 ```json
 {
-	"INARI_WS_URL": "wss://inari.example.com/ws"
-}
-```
-
-Example `secrets.json`:
-
-```json
-{
+	"INARI_WS_URL": "wss://inari.example.com/ws",
 	"INARI_API_KEY": "your-api-key"
 }
 ```
 
 Replace the example values before starting the server. Never publish the API
 key in a public repository.
+
+> **Note:** the API key is stored in `variables.json` and not in
+> `secrets.json`, because Bedrock secrets cannot be used with WebSocket
+> connections, so the addon would be unable to use it.
 
 ## Build
 
@@ -103,7 +99,7 @@ permission.
 src/                  TypeScript source code
 src/main.ts           Addon entry point
 src/entities/         Entity and player initialization
-config/default/       Configuration variables and secrets
+config/default/       Configuration variables
 scripts/              Generated JavaScript files
 manifest.json         Behavior pack declaration
 tsconfig.json         TypeScript 7 configuration

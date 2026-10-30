@@ -1,5 +1,5 @@
 import { CommandPermissionLevel, CustomCommandParamType, Player, system, world } from "@minecraft/server";
-import { secrets, variables } from "@minecraft/server-admin";
+import { variables } from "@minecraft/server-admin";
 import { websocket, WebSocketClient } from "@minecraft/server-net";
 import { InitPlayer } from "entities/player";
 import utils from "utils";
@@ -18,8 +18,14 @@ class InariAddons {
         system.runTimeout(() => {
             utils.logStaff('§aauthentication...');
             console.log('authentication...');
-            this.ws.send(JSON.stringify({kind: 'auth', data: {is_server: true, channel: 'default', auth_key: secrets.get("INARI_API_KEY") ?? 'bad-api-key'}, transaction_uuid: 'auth'}));
-        }, 20 * 3);
+            const apikey = variables.get("INARI_API_KEY") as string | undefined;
+            if (apikey) {
+                this.ws.send(JSON.stringify({kind: 'auth', data: {is_server: true, channel: 'default', auth_key: apikey}, transaction_uuid: 'auth'}));
+            } else {
+                utils.logStaff('§cInvalid INARI_API_KEY !');
+                console.log('§cInvalid INARI_API_KEY !');
+            }
+        }, 20);
         this.ws.afterEvents.message.subscribe((event) => {
             try {
                 const payload = JSON.parse(event.message);
@@ -30,9 +36,9 @@ class InariAddons {
                     utils.logStaff('§aInari connected !');
                     console.log('Inari connected !')
                 } else if (kind == 'error') {
-		    utils.logStaff('§aInari ERROR : '+event.message);
+		            utils.logStaff('§aInari ERROR : '+event.message);
                     console.log('Inari ERROR : '+event.message)
-		}
+		        }
             } catch (error) {
                 utils.logStaff('ERROR With Payload : ' + event.message);
                 console.log('ERROR With Payload : ' + event.message)
