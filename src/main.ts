@@ -18,7 +18,7 @@ class InariAddons {
         system.runTimeout(() => {
             utils.logStaff('§aauthentication...');
             console.log('authentication...');
-            this.ws.send(JSON.stringify({kind: 'auth', data: {is_server: true, channel: 'default', auth_key: secrets.get("INARI_API_KEY") ?? ''}, transaction_uuid: 'auth'}));
+            this.ws.send(JSON.stringify({kind: 'auth', data: {is_server: true, channel: 'default', auth_key: secrets.get("INARI_API_KEY") ?? 'bad-api-key'}, transaction_uuid: 'auth'}));
         }, 20 * 3);
         this.ws.afterEvents.message.subscribe((event) => {
             try {
