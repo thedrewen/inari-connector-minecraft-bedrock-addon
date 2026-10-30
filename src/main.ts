@@ -29,7 +29,10 @@ class InariAddons {
                 if (kind == 'auth') {
                     utils.logStaff('§aInari connected !');
                     console.log('Inari connected !')
-                }
+                } else if (kind == 'error') {
+		    utils.logStaff('§aInari ERROR : '+event.message);
+                    console.log('Inari ERROR : '+event.message)
+		}
             } catch (error) {
                 utils.logStaff('ERROR With Payload : ' + event.message);
                 console.log('ERROR With Payload : ' + event.message)
