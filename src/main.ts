@@ -19,6 +19,7 @@ class InariAddons {
         this.ws.afterEvents.message.subscribe((event) => {
             try {
                 const payload = JSON.parse(event.message);
+                console.debug(`INARI DEBUG : ${payload}`)
 
                 const kind = payload.kind;
                 const data = payload.data;
