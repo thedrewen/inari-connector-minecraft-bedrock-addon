@@ -15,7 +15,7 @@ class InariAddons {
             console.log('authentication...');
             const apikey = variables.get("INARI_API_KEY");
             if (apikey) {
-                this.ws.send(JSON.stringify({ kind: 'auth', data: { is_server: true, channel: 'default', auth_key: apikey }, transaction_uuid: 'auth' }));
+                this.ws.send(JSON.stringify({ kind: 'auth', data: { is_connector: true, channel: 'default', auth_key: apikey }, transaction_uuid: 'auth' }));
             }
             else {
                 utils.logStaff('§cInvalid INARI_API_KEY !');
@@ -71,11 +71,13 @@ class InariAddons {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
-                    muted: p.hasTag('muted')
+                    muted: p.hasTag('muted'),
+                    group: p.dimension.id,
+                    display_name: p.name
                 };
             });
             this.ws.send(JSON.stringify({
-                kind: 'clients',
+                kind: 'sync_connector_state',
                 transaction_uuid: utils.makeid(100),
                 data: { clients: players }
             }));
