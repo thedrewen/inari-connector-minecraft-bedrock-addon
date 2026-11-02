@@ -88,10 +88,19 @@ The manifest declares `scripts/main.js` as the script module entry point.
 
 Displays the player's Inari code.
 
-### `/inari:inariadmin-mute <player>`
+## Force Mute
 
-Toggles the target player's mute status. This command requires administrator
-permission.
+To force mute a player, simply add the `muted` tag to them:
+
+```mcfunction
+/tag <player> add muted
+```
+
+To remove the force mute, remove the tag:
+
+```mcfunction
+/tag <player> remove muted
+```
 
 ## Project Structure
 

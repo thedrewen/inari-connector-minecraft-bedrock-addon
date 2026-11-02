@@ -78,12 +78,12 @@ class InariAddons {
         this.timer += 6;
 
         if (this.ws.isOpen) {
-            const players: { position: number[], head: number[], code: string, muted: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
+            const players: { position: number[], head: number[], code: string, is_force_muted: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
                 return {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
-                    muted: p.hasTag('muted'),
+                    is_force_muted: p.hasTag('muted'),
                     group: p.dimension.id,
                     display_name: p.name
                 }
@@ -108,24 +108,6 @@ system.beforeEvents.startup.subscribe((s) => {
         (o) => {
             if (o.sourceEntity instanceof Player) {
                 o.sourceEntity.sendMessage(`${utils.prefix} Inari code : ${o.sourceEntity.inariCode}`);
-            }
-        }
-    )
-
-    s.customCommandRegistry.registerCommand(
-        {name: 'inari:inariadmin-mute', description: 'Mute or unmute a player.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Admin, mandatoryParameters: [{name: 'target', type: CustomCommandParamType.PlayerSelector}]},
-        (o, args: [Player]) => {
-            const [target] = args;
-            if (o.sourceEntity instanceof Player) {
-                if (target.hasTag('muted')) {
-                    target.removeTag('muted');
-                    o.sourceEntity.sendMessage(`${utils.prefix} ${target.name} §aunmuted!`);
-                    target.sendMessage(`${utils.prefix} §aYou are now unmuted!`);
-                } else {
-                    target.addTag('muted');
-                    o.sourceEntity.sendMessage(`${utils.prefix} ${target.name} §cmuted!`);
-                    target.sendMessage(`${utils.prefix} §cYou are now muted!`);
-                }
             }
         }
     )
