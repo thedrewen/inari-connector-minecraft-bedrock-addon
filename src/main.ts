@@ -14,54 +14,58 @@ class InariAddons {
     }
 
     async connect() {
-        this.ws = await websocket.connect(variables.get("INARI_WS_URL") as string);
-        system.runTimeout(() => {
-            utils.logStaff('§aauthentication...');
-            console.log('authentication...');
-            const apikey = variables.get("INARI_API_KEY") as string | undefined;
-            if (apikey) {
-                this.ws.send(JSON.stringify({kind: 'auth', data: {is_connector: true, channel: 'default', auth_key: apikey}, transaction_uuid: 'auth'}));
-            } else {
-                utils.logStaff('§cInvalid INARI_API_KEY !');
-                console.log('§cInvalid INARI_API_KEY !');
-            }
-        }, 20);
-        this.ws.afterEvents.message.subscribe((event) => {
-            try {
-                const payload = JSON.parse(event.message);
-
-                const kind = payload.kind;
-                const data = payload.data;
-                if (kind == 'auth') {
-                    utils.logStaff('§aInari connected !');
-                    console.log('Inari connected !')
-                } else if (kind == 'error') {
-		            utils.logStaff('§aInari ERROR : '+event.message);
-                    console.log('Inari ERROR : '+event.message)
-		        } else if (kind == 'sync_connector_data') {
-                    data.connections.forEarch((c: {code: string, is_muted: boolean, is_deafened: boolean}) => {
-                        const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
-                        if(p) {
-                            p.inari_client_muted = c.is_muted;
-                        }
-                    });
-                }
-            } catch (error) {
-                utils.logStaff('ERROR With Payload : ' + event.message);
-                console.log('ERROR With Payload : ' + event.message)
-            }
-        });
-
-        this.ws.afterEvents.close.subscribe((event) => {
-            utils.logStaff(`§cConnection to Inari closed.`);
-            console.log(`Connection to Inari closed.`);
-
-            utils.logStaff(`§eReconnecting in 5 seconds.`);
-            console.log(`Reconnecting in 5 seconds.`);
+        return new Promise(async (res) => {
+            this.ws = await websocket.connect(variables.get("INARI_WS_URL") as string);
             system.runTimeout(() => {
-                this.connect();
-            }, 20 * 5);
-        });
+                utils.logStaff('§aauthentication...');
+                console.log('authentication...');
+                const apikey = variables.get("INARI_API_KEY") as string | undefined;
+                if (apikey) {
+                    this.ws.send(JSON.stringify({ kind: 'auth', data: { is_connector: true, channel: 'default', auth_key: apikey }, transaction_uuid: 'auth' }));
+                } else {
+                    utils.logStaff('§cInvalid INARI_API_KEY !');
+                    console.log('§cInvalid INARI_API_KEY !');
+                }
+
+                res(0);
+            }, 20);
+            this.ws.afterEvents.message.subscribe((event) => {
+                try {
+                    const payload = JSON.parse(event.message);
+
+                    const kind = payload.kind;
+                    const data = payload.data;
+                    if (kind == 'auth') {
+                        utils.logStaff('§aInari connected !');
+                        console.log('Inari connected !')
+                    } else if (kind == 'error') {
+                        utils.logStaff('§aInari ERROR : ' + event.message);
+                        console.log('Inari ERROR : ' + event.message)
+                    } else if (kind == 'sync_connector_data') {
+                        data.connections.forEarch((c: { code: string, is_muted: boolean, is_deafened: boolean }) => {
+                            const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
+                            if (p) {
+                                p.inari_client_muted = c.is_muted;
+                            }
+                        });
+                    }
+                } catch (error) {
+                    utils.logStaff('ERROR With Payload : ' + event.message);
+                    console.log('ERROR With Payload : ' + event.message)
+                }
+            });
+
+            this.ws.afterEvents.close.subscribe((event) => {
+                utils.logStaff(`§cConnection to Inari closed.`);
+                console.log(`Connection to Inari closed.`);
+
+                utils.logStaff(`§eReconnecting in 5 seconds.`);
+                console.log(`Reconnecting in 5 seconds.`);
+                system.runTimeout(() => {
+                    this.connect();
+                }, 20 * 5);
+            });
+        })
     }
 
     async initEarlyExecution() {
@@ -86,7 +90,7 @@ class InariAddons {
 
         if (this.ws.isOpen) {
             const players: { position: number[], head: number[], code: string, is_force_muted: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
-                
+
                 let toggle_muted = false;
                 if (p.toggle_muted) {
                     toggle_muted = true;
@@ -104,11 +108,11 @@ class InariAddons {
                     }
                 }
             });
-            
+
             this.ws.send(JSON.stringify({
                 kind: 'sync_connector_state',
                 transaction_uuid: utils.makeid(100),
-                data: {clients: players}
+                data: { clients: players }
             }));
         }
 
@@ -120,7 +124,7 @@ new InariAddons();
 
 system.beforeEvents.startup.subscribe((s) => {
     s.customCommandRegistry.registerCommand(
-        {name: 'inari:inari', description: 'Give inari code.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any},
+        { name: 'inari:inari', description: 'Give inari code.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any },
         (o) => {
             if (o.sourceEntity instanceof Player) {
                 o.sourceEntity.sendMessage(`${utils.prefix} Inari code : ${o.sourceEntity.inariCode}`);
@@ -129,7 +133,7 @@ system.beforeEvents.startup.subscribe((s) => {
     )
 
     s.customCommandRegistry.registerCommand(
-        {name: 'inari:mute', description: 'Allows you to mute yourself.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any},
+        { name: 'inari:mute', description: 'Allows you to mute yourself.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any },
         (o) => {
             if (o.sourceEntity instanceof Player) {
                 o.sourceEntity.sendMessage(`${utils.prefix} §c${o.sourceEntity.inari_client_muted ? 'You are now muted!' : 'You are now unmuted!'}`);
