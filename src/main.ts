@@ -38,7 +38,14 @@ class InariAddons {
                 } else if (kind == 'error') {
 		            utils.logStaff('§aInari ERROR : '+event.message);
                     console.log('Inari ERROR : '+event.message)
-		        }
+		        } else if (kind == 'sync_connector_data') {
+                    data.connections.forEarch((c: {code: string, is_muted: boolean, is_deafened: boolean}) => {
+                        const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
+                        if(p) {
+                            p.inari_client_muted = c.is_muted;
+                        }
+                    });
+                }
             } catch (error) {
                 utils.logStaff('ERROR With Payload : ' + event.message);
                 console.log('ERROR With Payload : ' + event.message)
@@ -79,13 +86,22 @@ class InariAddons {
 
         if (this.ws.isOpen) {
             const players: { position: number[], head: number[], code: string, is_force_muted: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
+                
+                let toggle_muted = false;
+                if (p.toggle_muted) {
+                    toggle_muted = true;
+                    p.toggle_muted = false;
+                }
                 return {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
                     is_force_muted: p.hasTag('muted'),
                     group: p.dimension.id,
-                    display_name: p.name
+                    display_name: p.name,
+                    actions: {
+                        toggle_muted
+                    }
                 }
             });
             
@@ -108,6 +124,16 @@ system.beforeEvents.startup.subscribe((s) => {
         (o) => {
             if (o.sourceEntity instanceof Player) {
                 o.sourceEntity.sendMessage(`${utils.prefix} Inari code : ${o.sourceEntity.inariCode}`);
+            }
+        }
+    )
+
+    s.customCommandRegistry.registerCommand(
+        {name: 'inari:mute', description: 'Allows you to mute yourself.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any},
+        (o) => {
+            if (o.sourceEntity instanceof Player) {
+                o.sourceEntity.sendMessage(`${utils.prefix} §c${o.sourceEntity.inari_client_muted ? 'You are now muted!' : 'You are now unmuted!'}`);
+                o.sourceEntity.toggle_muted = true;
             }
         }
     )
