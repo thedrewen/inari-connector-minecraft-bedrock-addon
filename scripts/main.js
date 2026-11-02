@@ -45,6 +45,7 @@ class InariAddons {
                     console.log('Inari ERROR : ' + event.message);
                 }
                 else if (kind == 'sync_connector_state') {
+                    console.log(JSON.stringify(data, null, 2));
                     data.connections.forEarch((c) => {
                         const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
                         if (p) {
