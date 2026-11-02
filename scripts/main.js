@@ -1,4 +1,4 @@
-import { CommandPermissionLevel, CustomCommandParamType, Player, system, world } from "@minecraft/server";
+import { CommandPermissionLevel, Player, system, world } from "@minecraft/server";
 import { variables } from "@minecraft/server-admin";
 import { websocket } from "@minecraft/server-net";
 import { InitPlayer } from "entities/player";
@@ -71,7 +71,7 @@ class InariAddons {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
-                    muted: p.hasTag('muted'),
+                    is_force_muted: p.hasTag('muted'),
                     group: p.dimension.id,
                     display_name: p.name
                 };
@@ -89,21 +89,6 @@ system.beforeEvents.startup.subscribe((s) => {
     s.customCommandRegistry.registerCommand({ name: 'inari:inari', description: 'Give inari code.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any }, (o) => {
         if (o.sourceEntity instanceof Player) {
             o.sourceEntity.sendMessage(`${utils.prefix} Inari code : ${o.sourceEntity.inariCode}`);
-        }
-    });
-    s.customCommandRegistry.registerCommand({ name: 'inari:inariadmin-mute', description: 'Mute or unmute a player.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Admin, mandatoryParameters: [{ name: 'target', type: CustomCommandParamType.PlayerSelector }] }, (o, args) => {
-        const [target] = args;
-        if (o.sourceEntity instanceof Player) {
-            if (target.hasTag('muted')) {
-                target.removeTag('muted');
-                o.sourceEntity.sendMessage(`${utils.prefix} ${target.name} §aunmuted!`);
-                target.sendMessage(`${utils.prefix} §aYou are now unmuted!`);
-            }
-            else {
-                target.addTag('muted');
-                o.sourceEntity.sendMessage(`${utils.prefix} ${target.name} §cmuted!`);
-                target.sendMessage(`${utils.prefix} §cYou are now muted!`);
-            }
         }
     });
 });
