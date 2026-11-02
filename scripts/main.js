@@ -25,30 +25,32 @@ class InariAddons {
                 res(0);
             }, 20);
             this.ws.afterEvents.message.subscribe((event) => {
+                let payload = null;
                 try {
-                    const payload = JSON.parse(event.message);
-                    const kind = payload.kind;
-                    const data = payload.data;
-                    if (kind == 'auth') {
-                        utils.logStaff('§aInari connected !');
-                        console.log('Inari connected !');
-                    }
-                    else if (kind == 'error') {
-                        utils.logStaff('§aInari ERROR : ' + event.message);
-                        console.log('Inari ERROR : ' + event.message);
-                    }
-                    else if (kind == 'sync_connector_state') {
-                        data.connections.forEarch((c) => {
-                            const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
-                            if (p) {
-                                p.inari_client_muted = c.is_muted;
-                            }
-                        });
-                    }
+                    payload = JSON.parse(event.message);
                 }
                 catch (error) {
                     utils.logStaff('ERROR With Payload : ' + event.message);
                     console.log('ERROR With Payload : ' + event.message);
+                    return;
+                }
+                const kind = payload.kind;
+                const data = payload.data;
+                if (kind == 'auth') {
+                    utils.logStaff('§aInari connected !');
+                    console.log('Inari connected !');
+                }
+                else if (kind == 'error') {
+                    utils.logStaff('§aInari ERROR : ' + event.message);
+                    console.log('Inari ERROR : ' + event.message);
+                }
+                else if (kind == 'sync_connector_state') {
+                    data.connections.forEarch((c) => {
+                        const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
+                        if (p) {
+                            p.inari_client_muted = c.is_muted;
+                        }
+                    });
                 }
             });
             this.ws.afterEvents.close.subscribe((event) => {
