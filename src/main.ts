@@ -50,6 +50,7 @@ class InariAddons {
                         });
                     }
                 } catch (error) {
+                    console.log(error)
                     utils.logStaff('ERROR With Payload : ' + event.message);
                     console.log('ERROR With Payload : ' + event.message)
                 }
