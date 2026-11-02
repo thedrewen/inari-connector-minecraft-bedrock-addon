@@ -41,12 +41,11 @@ class InariAddons {
                     } else if (kind == 'error') {
                         utils.logStaff('§aInari ERROR : ' + event.message);
                         console.log('Inari ERROR : ' + event.message)
-                    } else if (kind == 'sync_connector_data') {
+                    } else if (kind == 'sync_connector_state') {
                         data.connections.forEarch((c: { code: string, is_muted: boolean, is_deafened: boolean }) => {
                             const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
                             if (p) {
                                 p.inari_client_muted = c.is_muted;
-                                console.log(c);
                             }
                         });
                     }
