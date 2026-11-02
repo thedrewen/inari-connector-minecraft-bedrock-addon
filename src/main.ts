@@ -53,7 +53,7 @@ class InariAddons {
                         if (p) {
                             if (p.inari_client_muted != c.is_muted) {
                                 p.inari_client_muted = c.is_muted;
-                                p.sendMessage(`${utils.prefix} ${c.is_muted ? '§aYou are now unmuted!' : '§aYou are now muted!'}`);
+                                p.sendMessage(`${utils.prefix} ${!c.is_muted ? '§aYou are now unmuted!' : '§aYou are now muted!'}`);
                             }
                         }
                     });
