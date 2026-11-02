@@ -45,8 +45,7 @@ class InariAddons {
                     console.log('Inari ERROR : ' + event.message);
                 }
                 else if (kind == 'sync_connector_state') {
-                    data.connections.forEarch((c) => {
-                        console.log(c);
+                    data.connections.forEach((c) => {
                         const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
                         if (p) {
                             p.inari_client_muted = c.is_muted;
