@@ -46,7 +46,6 @@ class InariAddons {
                             const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
                             if (p) {
                                 p.inari_client_muted = c.is_muted;
-                                console.log(c);
                             }
                         });
                     }
