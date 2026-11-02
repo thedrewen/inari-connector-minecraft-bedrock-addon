@@ -51,7 +51,10 @@ class InariAddons {
                     data.connections.forEach((c: { code: string, is_muted: boolean, is_deafened: boolean }) => {
                         const p = world.getAllPlayers().find((p) => p.inariCode == c.code);
                         if (p) {
-                            p.inari_client_muted = c.is_muted;
+                            if (p.inari_client_muted != c.is_muted) {
+                                p.inari_client_muted = c.is_muted;
+                                p.sendMessage(`${utils.prefix} §c${!c.is_muted ? 'You are now muted!' : 'You are now unmuted!'}`);
+                            }
                         }
                     });
                 }
@@ -138,7 +141,6 @@ system.beforeEvents.startup.subscribe((s) => {
         { name: 'inari:mute', description: 'Allows you to mute yourself.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any },
         (o) => {
             if (o.sourceEntity instanceof Player) {
-                o.sourceEntity.sendMessage(`${utils.prefix} §c${o.sourceEntity.inari_client_muted ? 'You are now muted!' : 'You are now unmuted!'}`);
                 o.sourceEntity.toggle_muted = true;
             }
         }
