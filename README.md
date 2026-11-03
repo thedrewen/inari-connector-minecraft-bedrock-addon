@@ -88,6 +88,10 @@ The manifest declares `scripts/main.js` as the script module entry point.
 
 Displays the player's Inari code.
 
+### `/inari:mute`
+
+Allows a player to mute themselves.
+
 ## Force Mute
 
 To force mute a player, simply add the `muted` tag to them:
