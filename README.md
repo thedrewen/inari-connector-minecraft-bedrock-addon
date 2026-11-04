@@ -92,6 +92,14 @@ Displays the player's Inari code.
 
 Allows a player to mute themselves.
 
+### `/inari:deafen`
+
+Allows a player to deafen themselves (nightly protocol, Inari `1.7.0-nightly`).
+
+### `/inari:admin`
+
+Opens the admin panel (operators only): lists players with their status (muted, deafened, force muted, force deafened) and lets you toggle force mute / force deafen, which sets or removes the `muted` / `deafened` tags.
+
 ## Force Mute
 
 To force mute a player, simply add the `muted` tag to them:
@@ -104,6 +112,15 @@ To remove the force mute, remove the tag:
 
 ```mcfunction
 /tag <player> remove muted
+```
+
+## Force Deafen
+
+Requires an Inari server on the `nightly` tag (`1.7.0-nightly`), where `is_force_deafened` is a required field of `sync_connector_state`. It is also ignored by stable servers, so it is always sent.
+
+```mcfunction
+/tag <player> add deafened
+/tag <player> remove deafened
 ```
 
 ## Project Structure

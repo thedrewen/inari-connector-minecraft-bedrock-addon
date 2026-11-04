@@ -3,6 +3,7 @@ import { variables } from "@minecraft/server-admin";
 import { websocket, WebSocketClient } from "@minecraft/server-net";
 import { InitPlayer } from "entities/player";
 import utils from "utils";
+import { openPlayerList } from "admin";
 
 class InariAddons {
 
@@ -55,6 +56,10 @@ class InariAddons {
                                 p.inari_client_muted = c.is_muted;
                                 p.sendMessage(`${utils.prefix} ${!c.is_muted ? '§aYou are now unmuted!' : '§aYou are now muted!'}`);
                             }
+                            if (p.inari_client_deafened != c.is_deafened) {
+                                p.inari_client_deafened = c.is_deafened;
+                                p.sendMessage(`${utils.prefix} ${!c.is_deafened ? '§aYou are now undeafened!' : '§aYou are now deafened!'}`);
+                            }
                         }
                     });
                 }
@@ -94,22 +99,29 @@ class InariAddons {
         this.timer += 6;
 
         if (this.ws.isOpen) {
-            const players: { position: number[], head: number[], code: string, is_force_muted: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
+            const players: { position: number[], head: number[], code: string, is_force_muted: boolean, is_force_deafened: boolean }[] = world.getAllPlayers().filter((p) => p.initialized).map((p) => {
 
                 let toggle_muted = false;
                 if (p.toggle_muted) {
                     toggle_muted = true;
                     p.toggle_muted = false;
                 }
+                let toggle_deafened = false;
+                if (p.toggle_deafened) {
+                    toggle_deafened = true;
+                    p.toggle_deafened = false;
+                }
                 return {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
                     is_force_muted: p.hasTag('muted'),
+                    is_force_deafened: p.hasTag('deafened'),
                     group: p.dimension.id,
                     display_name: p.name,
                     actions: {
-                        toggle_muted
+                        toggle_muted,
+                        toggle_deafened
                     }
                 }
             });
@@ -142,6 +154,25 @@ system.beforeEvents.startup.subscribe((s) => {
         (o) => {
             if (o.sourceEntity instanceof Player) {
                 o.sourceEntity.toggle_muted = true;
+            }
+        }
+    )
+
+    s.customCommandRegistry.registerCommand(
+        { name: 'inari:deafen', description: 'Allows you to deafen yourself.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.Any },
+        (o) => {
+            if (o.sourceEntity instanceof Player) {
+                o.sourceEntity.toggle_deafened = true;
+            }
+        }
+    )
+
+    s.customCommandRegistry.registerCommand(
+        { name: 'inari:admin', description: 'Open the Inari admin panel.', cheatsRequired: false, permissionLevel: CommandPermissionLevel.GameDirectors },
+        (o) => {
+            if (o.sourceEntity instanceof Player) {
+                const admin = o.sourceEntity;
+                system.run(() => openPlayerList(admin));
             }
         }
     )

@@ -6,5 +6,7 @@ declare module "@minecraft/server" {
         initialized: boolean;
         inari_client_muted: boolean;
         toggle_muted: boolean;
+        inari_client_deafened: boolean;
+        toggle_deafened: boolean;
     }
 }
