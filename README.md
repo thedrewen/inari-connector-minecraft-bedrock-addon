@@ -114,6 +114,10 @@ To remove the force mute, remove the tag:
 /tag <player> remove muted
 ```
 
+### Custom force mute tags
+
+From `/inari:admin` → *Force mute tags*, you can register extra tags that force mute any player who has them (e.g. `jailed`). They are stored in the world dynamic property `inari:force_mute_tags`. The default `muted` tag always works.
+
 ## Force Deafen
 
 Requires an Inari server on the `nightly` tag (`1.7.0-nightly`), where `is_force_deafened` is a required field of `sync_connector_state`. It is also ignored by stable servers, so it is always sent.

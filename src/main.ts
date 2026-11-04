@@ -4,6 +4,7 @@ import { websocket, WebSocketClient } from "@minecraft/server-net";
 import { InitPlayer } from "entities/player";
 import utils from "utils";
 import { openPlayerList } from "admin";
+import { isForceMuted } from "tags";
 
 class InariAddons {
 
@@ -115,7 +116,7 @@ class InariAddons {
                     position: [p.location.x, p.location.y, p.location.z],
                     head: [p.getViewDirection().x, p.getViewDirection().y, p.getViewDirection().z],
                     code: p.inariCode,
-                    is_force_muted: p.hasTag('muted'),
+                    is_force_muted: isForceMuted(p),
                     is_force_deafened: p.hasTag('deafened'),
                     group: p.dimension.id,
                     display_name: p.name,

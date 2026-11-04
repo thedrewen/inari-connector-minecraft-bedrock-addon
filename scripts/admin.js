@@ -1,11 +1,12 @@
 import { system, world } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 import utils from "utils";
+import { addMuteTag, getMuteTags, isForceMuted, removeMuteTag } from "tags";
 const ON = '§a●';
 const OFF = '§7○';
 function status(p) {
     return `Muted ${p.inari_client_muted ? ON : OFF}  Deaf ${p.inari_client_deafened ? ON : OFF}\n`
-        + `Force mute ${p.hasTag('muted') ? ON : OFF}  Force deaf ${p.hasTag('deafened') ? ON : OFF}`;
+        + `Force mute ${isForceMuted(p) ? ON : OFF}  Force deaf ${p.hasTag('deafened') ? ON : OFF}`;
 }
 function setTag(p, tag, value) {
     if (value)
@@ -26,11 +27,52 @@ export async function openPlayerList(admin) {
     const form = new ActionFormData().title('Inari admin');
     if (players.length == 0)
         form.body('No player initialized.');
-    players.forEach((p) => form.button(`${p.name}\n${p.hasTag('muted') ? '§cM ' : ''}${p.hasTag('deafened') ? '§cD ' : ''}${p.inari_client_muted ? '§6muted ' : ''}${p.inari_client_deafened ? '§6deaf' : ''}`));
+    form.button('§l§9Force mute tags');
+    players.forEach((p) => form.button(`${p.name}\n${isForceMuted(p) ? '§cM ' : ''}${p.hasTag('deafened') ? '§cD ' : ''}${p.inari_client_muted ? '§6muted ' : ''}${p.inari_client_deafened ? '§6deaf' : ''}`));
     const r = await showForm(admin, form);
     if (!r || r.canceled)
         return;
-    await openPlayerPanel(admin, players[r.selection]);
+    if (r.selection == 0)
+        return openMuteTags(admin);
+    await openPlayerPanel(admin, players[r.selection - 1]);
+}
+async function openMuteTags(admin) {
+    const tags = getMuteTags();
+    const form = new ActionFormData()
+        .title('Force mute tags')
+        .body('Players with one of these tags (or the default `muted` tag) are force muted.\nSelect a tag to remove it.')
+        .button('§l§aAdd a tag');
+    tags.forEach((t) => form.button(`§c${t}`));
+    form.button('Back');
+    const r = await showForm(admin, form);
+    if (!r || r.canceled)
+        return;
+    if (r.selection == 0)
+        return addMuteTagForm(admin);
+    if (r.selection > tags.length)
+        return openPlayerList(admin);
+    removeMuteTag(tags[r.selection - 1]);
+    admin.sendMessage(`${utils.prefix} §aTag "${tags[r.selection - 1]}" removed from force mute tags.`);
+    await openMuteTags(admin);
+}
+async function addMuteTagForm(admin) {
+    const form = new ModalFormData()
+        .title('Add a force mute tag')
+        .textField('Tag', 'e.g. jailed');
+    const r = await showForm(admin, form);
+    if (!r || r.canceled)
+        return openMuteTags(admin);
+    const tag = String(r.formValues[0] ?? '').trim();
+    if (!tag) {
+        admin.sendMessage(`${utils.prefix} §cEmpty tag.`);
+    }
+    else if (!addMuteTag(tag)) {
+        admin.sendMessage(`${utils.prefix} §cTag "${tag}" is already a force mute tag.`);
+    }
+    else {
+        admin.sendMessage(`${utils.prefix} §aPlayers with tag "${tag}" are now force muted.`);
+    }
+    await openMuteTags(admin);
 }
 async function openPlayerPanel(admin, target) {
     if (!target.isValid)
