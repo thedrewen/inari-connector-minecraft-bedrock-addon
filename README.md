@@ -48,7 +48,7 @@ Example `variables.json`:
 
 ```json
 {
-	"INARI_WS_URL": "wss://inari.example.com/ws",
+	"INARI_WS_URL": "wss://<domain or subdomain>/ws",
 	"INARI_API_KEY": "your-api-key"
 }
 ```
